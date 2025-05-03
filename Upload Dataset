@@ -1,0 +1,13 @@
+# Step 1: Import necessary libraries
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Step 2: Load the dataset (upload manually if needed in Colab)
+from google.colab import files
+uploaded = files.upload()  # Upload your telco_customer_churn_sample.csv file
+
+# Step 3: Read the CSV file
+df = pd.read_csv('sample_churn_dataset_100.csv')
