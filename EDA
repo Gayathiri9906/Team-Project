@@ -6,3 +6,33 @@ plt.title('Churn Distribution')
 plt.xlabel('Churn (0 = No, 1 = Yes)')
 plt.ylabel('Number of Customers')
 plt.show()
+plt.figure(figsize=(12, 8))
+# Exclude non-numeric columns from correlation calculation
+numeric_df = df.select_dtypes(include=np.number)  # Select only numeric columns
+sns.heatmap(numeric_df.corr(), cmap='coolwarm', annot=False)
+plt.title('Feature Correlation Heatmap')
+plt.show()
+# 3. Boxplots for numerical features
+for col in ['tenure', 'MonthlyCharges', 'TotalCharges']:
+    plt.figure(figsize=(6, 4))
+    sns.boxplot(x='Churn', y=col, data=df)
+    plt.title(f'{col} vs Churn')
+    plt.show()
+# 4. Value counts of Contract types vs Churn
+contract_cols = [col for col in df.columns if col.startswith('Contract_')]  # Get contract columns
+
+# Check if contract columns exist
+if contract_cols:
+    contract_df = df[['Churn'] + contract_cols]
+    contract_summary = contract_df.groupby('Churn').sum().T
+
+    # Check if summary DataFrame is not empty
+    if not contract_summary.empty:
+        contract_summary.plot(kind='bar', stacked=True, figsize=(8,5))
+        plt.title('Contract Type and Churn')
+        plt.ylabel('Count')
+        plt.show()
+    else:
+        print("Contract summary DataFrame is empty. Check your data and grouping.")
+else:
+    print("No contract columns found in the DataFrame. Check your one-hot encoding.")
