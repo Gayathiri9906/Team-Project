@@ -1,0 +1,56 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
+from imblearn.over_sampling import SMOTE # import SMOTE
+
+
+# Step 1: Load the dataset (update the path if necessary)
+df = pd.read_csv("sample_churn_dataset_100.csv")
+
+# Step 2: Preprocessing (simplified example)
+df.dropna(inplace=True)  # Remove missing values
+
+# Convert 'TotalCharges' to numeric
+df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce')
+df.dropna(subset=['TotalCharges'], inplace=True)
+
+# Encode target variable
+df['Churn'] = df['Churn'].map({'Yes': 1, 'No': 0})
+
+# Drop non-useful columns
+df.drop(['customerID'], axis=1, inplace=True)
+
+# Encode categorical variables
+df = pd.get_dummies(df, drop_first=True)
+
+# Step 3: Split the dataset
+X = df.drop('Churn', axis=1)
+y = df['Churn']
+
+# Apply SMOTE for oversampling
+smote = SMOTE(random_state=42)
+X_resampled, y_resampled = smote.fit_resample(X, y)
+
+# Now split the resampled data
+X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled, test_size=0.2, random_state=42)
+
+# Step 4: Model training and evaluation
+models = {
+    "Logistic Regression": LogisticRegression(max_iter=1000),
+    "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42),
+    "KNN": KNeighborsClassifier(n_neighbors=5)
+}
+
+for name, model in models.items():
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+
+    print(f"\n{name} Performance:")
+    print("Accuracy:", accuracy_score(y_test, y_pred))
+    print("Precision:", precision_score(y_test, y_pred))
+    print("Recall:", recall_score(y_test, y_pred))
+    print("F1 Score:", f1_score(y_test, y_pred))
+    print("\nClassification Report:\n", classification_report(y_test, y_pred))
