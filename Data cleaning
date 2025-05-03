@@ -1,0 +1,32 @@
+# Step 4: Basic overview
+print("Initial Data Shape:", df.shape)
+df.head()
+
+# Step 5: Handle TotalCharges - convert to numeric and drop missing
+df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce')
+df.dropna(inplace=True)
+
+# Step 6: Convert SeniorCitizen to categorical
+df['SeniorCitizen'] = df['SeniorCitizen'].replace({1: 'Yes', 0: 'No'})
+
+# Step 7: Encode binary categorical columns
+binary_cols = ['gender', 'SeniorCitizen', 'Partner', 'Dependents',
+               'PhoneService', 'PaperlessBilling', 'Churn']
+le = LabelEncoder()
+for col in binary_cols:
+    df[col] = le.fit_transform(df[col])
+
+# Step 8: One-hot encode multi-category features
+df = pd.get_dummies(df, columns=['MultipleLines', 'InternetService', 'OnlineSecurity',
+                                 'OnlineBackup', 'DeviceProtection', 'TechSupport',
+                                 'StreamingTV', 'StreamingMovies', 'Contract', 'PaymentMethod'],
+                    drop_first=True)
+
+# Step 9: Feature scaling
+scaler = MinMaxScaler()
+scale_cols = ['tenure', 'MonthlyCharges', 'TotalCharges']
+df[scale_cols] = scaler.fit_transform(df[scale_cols])
+
+# Step 10: Final data check
+print("Processed Data Shape:", df.shape)
+df.head()
