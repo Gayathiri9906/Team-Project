@@ -1,0 +1,8 @@
+# Step 3: Exploratory Data Analysis (EDA)
+
+# 1. Churn distribution
+sns.countplot(x='Churn', data=df)
+plt.title('Churn Distribution')
+plt.xlabel('Churn (0 = No, 1 = Yes)')
+plt.ylabel('Number of Customers')
+plt.show()
