@@ -1,0 +1,53 @@
+# Step 4: Feature Engineering (Custom to your dataset)
+
+# 1. Drop the 'customerID' column as it is irrelevant for prediction
+if 'customerID' in df.columns:
+    df.drop('customerID', axis=1, inplace=True)
+
+# 2. Create new feature: TotalServices
+# Check for service-related columns (after encoding, they might be renamed)
+possible_services = [
+    'PhoneService',
+    'MultipleLines_No phone service',
+    'OnlineSecurity_No internet service',
+    'OnlineBackup_No internet service',
+    'DeviceProtection_No internet service',
+    'TechSupport_No internet service',
+    'StreamingTV_No internet service',
+    'StreamingMovies_No internet service'
+]
+existing_services = [col for col in possible_services if col in df.columns]
+
+# Count how many services a customer is using
+df['TotalServices'] = 8 - df[existing_services].sum(axis=1)
+
+# 3. Create a new feature: AvgCharges (avoid divide-by-zero)
+df['AvgCharges'] = df['TotalCharges'] / (df['tenure'] + 1)
+
+# 4. Tenure group feature
+# First, revert scaled tenure back to months if previously scaled (assumed max 72)
+df['raw_tenure'] = df['tenure'] * 72  # Approximate reverse scaling if needed
+
+def tenure_group(t):
+    if t <= 12:
+        return '0-1 year'
+    elif t <= 24:
+        return '1-2 years'
+    elif t <= 48:
+        return '2-4 years'
+    elif t <= 60:
+        return '4-5 years'
+    else:
+        return '5+ years'
+
+df['tenure_group'] = df['raw_tenure'].apply(tenure_group)
+
+# Drop the temporary raw tenure
+df.drop('raw_tenure', axis=1, inplace=True)
+
+# One-hot encode tenure group
+df = pd.get_dummies(df, columns=['tenure_group'], drop_first=True)
+
+# 5. Final Data Check
+print("Data shape after feature engineering:", df.shape)
+df.head()
